@@ -1,9 +1,5 @@
 {
     "name": "atrawog/ecovoyage",
-    "containerEnv": {
-        "KVM_DEVICE": "/dev/kvm",
-        "DOCKER_SOCKET": "/var/run/docker.sock"
-    },
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
     "workspaceFolder": "/workspace",
     "updateRemoteUserUID": true,
@@ -13,11 +9,13 @@
         "args": {
             "CONTAINER_WORKSPACE_FOLDER": "/workspace",
             "NEW_MAMBA_USER": "jovian",
-            "NEW_MAMBA_USER_ID": "1010",
-            "NEW_MAMBA_USER_GID": "1010"
+            "NEW_MAMBA_USER_ID": "1000",
+            "NEW_MAMBA_USER_GID": "1000",
+            "KVM_DEVICE": "/dev/kvm",
+            "DOCKER_SOCKET": "/var/run/docker.sock"
         },
         "cacheFrom": [
-            "atrawog/ecovoyage:2023.12.00"
+            "atrawog/ecovoyage:2023.12.0000"
         ]
     },
     "extensions": [

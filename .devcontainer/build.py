@@ -37,7 +37,7 @@ def get_next_build_number():
         build_numbers = []
 
         # Regex to find matching tags
-        tag_regex = re.compile(rf'^{re.escape(current_year_month)}(\d{{2}})$')
+        tag_regex = re.compile(rf'^{re.escape(current_year_month)}(\d{{4}})$')
 
         for tag in tags:
             tag_name = tag.get('name')
@@ -47,23 +47,23 @@ def get_next_build_number():
                 build_numbers.append(build_number)
 
         # Determine the next build number
-        next_build_number = max(build_numbers) + 1
+        next_build_number = max(build_numbers) + 1 if build_numbers else 0
     else:
         next_build_number = 0
 
     return next_build_number
 
 def build_and_tag_docker_image(build_number):
-    image_tag = f"{container_name}:{current_year_month}{build_number:02d}"
+    image_tag = f"{container_name}:{current_year_month}{build_number:04d}"
 
-    print(f"Next build number calculated: {build_number:02d}")
+    print(f"Next build number calculated: {build_number:04d}")
     print(f"Building Docker image with tag: {image_tag}")
 
     # Prepare Docker buildx build arguments
     docker_build_args = ' '.join([f'--build-arg {key}={value}' for key, value in docker_args.items()])
     cache_from_args = ' '.join([f'--cache-from={source}' for source in docker_cache_from])
 
-    build_command = f"docker buildx build --pull --no-cache --load -f {dockerfile_path} {docker_build_args} {cache_from_args} -t {image_tag} {docker_context}"
+    build_command = f"docker buildx build --pull --load -f {dockerfile_path} {docker_build_args} {cache_from_args} -t {image_tag} {docker_context}"
     subprocess.run(build_command, shell=True, check=True)
 
     # Generate a new Dockerfile in the context directory

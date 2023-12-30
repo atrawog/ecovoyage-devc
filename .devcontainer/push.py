@@ -29,7 +29,7 @@ def get_latest_image_tag(container_name):
     # Extract image creation time and tag
     image_tags = []
     for line in result.stdout.strip().split('\n'):
-        match = re.match(r"(.+)\t(" + base_tag_pattern + r"\d{2})", line)
+        match = re.match(r"(.+)\t(" + base_tag_pattern + r"\d{4})", line)
         if match:
             image_time, image_tag = match.groups()
             try:

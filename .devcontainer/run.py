@@ -4,7 +4,7 @@ import re
 import datetime
 
 def get_latest_image_tag():
-    base_tag_pattern = r"atrawog/callisto-r2d:\d{4}\.\d{2}\."
+    base_tag_pattern = r"atrawog/ecovoyage:\d{4}\.\d{2}\."
 
     print("Checking local Docker images to find the latest image to run...")
 
@@ -16,7 +16,7 @@ def get_latest_image_tag():
     # Extract image tag
     image_tags = []
     for line in result.stdout.strip().split('\n'):
-        match = re.match(base_tag_pattern + r"\d{2}", line)
+        match = re.match(base_tag_pattern + r"\d{4}", line)
         if match:
             image_tags.append(line)
 

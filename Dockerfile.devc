@@ -30,19 +30,24 @@ COPY --from=fetch /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifica
 COPY --from=fetch /tmp/bin/micromamba "$MAMBA_EXE"
 
 ARG MAMBA_USER=jovian
-ARG MAMBA_USER_ID=1000
-ARG MAMBA_USER_GID=1000
+ARG MAMBA_GID=1000
+ARG MAMBA_UID=1000
+ARG MAMBA_GROUP=$MAMBA_USER
+ARG MAMBA_UMASK=022
 
 ENV MAMBA_USER=$MAMBA_USER
-ENV MAMBA_USER_ID=$MAMBA_USER_ID
-ENV MAMBA_USER_GID=$MAMBA_USER_GID
+ENV MAMBA_UID=$MAMBA_UID
+ENV MAMBA_GID=$MAMBA_GID
+ENV MAMBA_GROUP=$MAMBA_GROUP
 
-RUN groupadd -g "${MAMBA_USER_GID}" "${MAMBA_USER}" && \
-    useradd -m -u "${MAMBA_USER_ID}" -g "${MAMBA_USER_GID}" -s /bin/bash "${MAMBA_USER}"
+
+RUN groupadd -g "${MAMBA_GID}" "${MAMBA_GROUP}" && \
+    useradd -m -u "${MAMBA_UID}" -g "${MAMBA_GID}" -s /bin/bash "${MAMBA_USER}"
 RUN mkdir -p "${MAMBA_ROOT_PREFIX}/environments" && \
     chown "${MAMBA_USER}:${MAMBA_USER}" "${MAMBA_ROOT_PREFIX}"
 
 ARG CONTAINER_WORKSPACE_FOLDER=/workspace
+ENV CONTAINER_WORKSPACE_FOLDER=${CONTAINER_WORKSPACE_FOLDER}
 RUN mkdir -p "${CONTAINER_WORKSPACE_FOLDER}"
 WORKDIR "${CONTAINER_WORKSPACE_FOLDER}"
 
@@ -96,14 +101,42 @@ RUN echo \
     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && apt-get update
 RUN --mount=type=cache,target=/var/cache/apt,id=apt-deb12 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+
+ARG NB_USER=$MAMBA_USER
+ARG NB_UID=$MAMBA_UID
+ARG NB_GID=$MAMBA_GID
+ARG NB_GROUP=$MAMBA_GROUP
+ARG NB_UMASK=$MAMBA_UMASK
+ARG CHOWN_HOME=yes
+ARG CHOWN_EXTRA==""
+ARG GRANT_SUDO=yes
+
+
 RUN usermod -aG sudo $MAMBA_USER
-RUN echo "$MAMBA_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+
+ARG KVM_DEVICE="/dev/kvm"
+ARG DOCKER_SOCKET="/var/run/docker.sock"
+
+ENV KVM_DEVICE=${KVM_DEVICE}
+ENV DOCKER_SOCKET=${DOCKER_SOCKET}
+
 
 COPY fix-permissions.sh /bin/fix-permissions.sh
 RUN chmod +x /bin/fix-permissions.sh && \
-    echo 'export MAMBA_USER_ID=$(id -u)' >> /home/$MAMBA_USER/.bashrc && \
-    echo 'export MAMBA_USER_GID=$(id -g)' >> /home/$MAMBA_USER/.bashrc && \
-    echo "/bin/fix-permissions.sh" >> /home/$MAMBA_USER/.bashrc && \
-    echo "micromamba activate" >> /home/$MAMBA_USER/.bashrc
+    echo 'export NB_USER=$(id -un)' >> /home/$NB_USER/.bashrc && \
+    echo 'export NB_UID=$(id -u)' >> /home/$NB_USER/.bashrc && \
+    echo 'export NB_GID=$(id -g)' >> /home/$NB_USER/.bashrc && \
+    echo "/bin/fix-permissions.sh" >> /home/$NB_USER/.bashrc && \
+    echo "micromamba activate" >> /home/$NB_USER/.bashrc
 
-USER $MAMBA_USER
+RUN /bin/fix-permissions.sh
+
+USER $NB_USER
+
+ONBUILD USER root
+ONBUILD RUN /bin/fix-permissions.sh
+ONBUILD USER $NB_USER
+
+

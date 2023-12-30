@@ -1,1 +1,1 @@
-FROM atrawog/ecovoyage:2023.12.01
+FROM atrawog/ecovoyage:2023.12.0001
