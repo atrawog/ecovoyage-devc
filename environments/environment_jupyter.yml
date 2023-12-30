@@ -1,0 +1,17 @@
+name: base
+category: jupyter
+channels:
+  - conda-forge
+  - default
+dependencies:
+  - jupyterlab
+  - jupyter
+  - jupyter-book
+  - jupyter-ai
+  - bash_kernel
+  - pytest-notebook
+  - ghp-import
+  - pandas
+  - numpy
+  - tqdm
+  - matplotlib

@@ -1,0 +1,35 @@
+name: base
+category: testing
+channels:
+  - conda-forge
+  - default
+dependencies:
+  - ipycanvas
+  - pydata-sphinx-theme
+  - jupyterlite-sphinx
+  - jupyterlite-xeus-python
+  - jupyterlab-night
+  - jupyter-packaging
+  - pip:
+    - molecule-qemu
+    - routingpy
+    - jupyterlab-geojson
+
+    #- langchain_experimental
+    #- plugnplai
+    #- vowpal_wabbit_next
+    #- pettingzoo
+    #- pygame
+    #- rlcard
+    #- replicate
+    #- duckduckgo-search
+    #- arxiv
+    #- langchainhub
+    #- unstructured[all-docs]
+    - wikipedia
+    #- llama-index
+    #- llama-hub
+    #- pypdf
+    #- ragas
+
+
