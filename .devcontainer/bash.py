@@ -22,7 +22,7 @@ def get_latest_image_tag():
 
 def run_bash_in_latest_image(image_tag):
     print(f"Running Bash in Docker image: {image_tag}")
-    run_command = f"docker run -it --rm {image_tag} /bin/bash"
+    run_command = f"docker run -p 8888:8888 -it --rm {image_tag} /bin/bash"
     subprocess.run(run_command, shell=True)
 
 if __name__ == "__main__":

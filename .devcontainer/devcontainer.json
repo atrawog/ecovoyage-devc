@@ -15,7 +15,7 @@
             "DOCKER_SOCKET": "/var/run/docker.sock"
         },
         "cacheFrom": [
-            "atrawog/ecovoyage:2023.12.0000"
+            "atrawog/ecovoyage:2023.12.0002"
         ]
     },
     "extensions": [

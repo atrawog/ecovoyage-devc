@@ -59,31 +59,31 @@ SHELL ["/bin/bash", "--rcfile", "/$MAMBA_USER/.bashrc", "-c"]
 FROM micromamba AS python
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER environments/environment_python.yml /opt/conda/environments/environment_python.yml
-RUN --mount=type=cache,target=$MAMBA_ROOT_PREFIX/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_python.yml
+RUN --mount=type=cache,target=/opt/conda/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_python.yml
 
 
 FROM python AS jupyter
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER environments/environment_jupyter.yml /opt/conda/environments/environment_jupyter.yml 
-RUN --mount=type=cache,target=$MAMBA_ROOT_PREFIX/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_jupyter.yml 
+RUN --mount=type=cache,target=/opt/conda/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_jupyter.yml 
 
 
 FROM jupyter AS jupyter-ai
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER environments/environment_ai.yml /opt/conda/environments/environment_ai.yml 
-RUN --mount=type=cache,target=$MAMBA_ROOT_PREFIX/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_ai.yml 
+RUN --mount=type=cache,target=/opt/conda/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_ai.yml 
 
 
 FROM jupyter-ai AS jupyter-spatial
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER environments/environment_spatial.yml /opt/conda/environments/environment_spatial.yml 
-RUN --mount=type=cache,target=$MAMBA_ROOT_PREFIX/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_spatial.yml 
+RUN --mount=type=cache,target=/opt/conda/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_spatial.yml 
 
 
 FROM jupyter-spatial AS jupyter-ansible
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER environments/environment_ansible.yml /opt/conda/environments/environment_ansible.yml 
-RUN --mount=type=cache,target=$MAMBA_ROOT_PREFIX/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_ansible.yml 
+RUN --mount=type=cache,target=/opt/conda/pkgs,id=mamba-pkgs micromamba install -y -f /opt/conda/environments/environment_ansible.yml 
 
 
 FROM jupyter-ansible as jupyter-devel
@@ -134,6 +134,11 @@ RUN chmod +x /bin/fix-permissions.sh && \
 RUN /bin/fix-permissions.sh
 
 USER $NB_USER
+
+RUN jupyter notebook --generate-config
+COPY --chown=$NB_USER:$NB_USER jupyter_notebook_config.py /home/jovian/.jupyter/jupyter_notebook_config.py
+
+CMD ["jupyter", "notebook", "--ip", "0.0.0.0"]
 
 ONBUILD USER root
 ONBUILD RUN /bin/fix-permissions.sh
